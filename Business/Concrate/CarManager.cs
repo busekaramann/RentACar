@@ -1,6 +1,9 @@
 ﻿using Business.Abstract;
+using Business.Constants;
+using Core.Utilities.Results;
 using DataAccess.Abstract;
 using Entities.Concreate;
+using Entities.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,32 +22,77 @@ namespace Business.Concrate
             _carDal = carDal;
         }
         
-        public void Add(Car car)
+        public IResult Add(Car car)
         {
             int lenght = car.Description.Length;
             if (lenght < 2) {
-                return;
+                return new ErrorResult();
             }
 
             if(car.DailyPrice <= 0) {
-                return;
+                return new ErrorResult();
             }
             _carDal.Add(car);
+            return new SuccessResult();
         }
 
-        public List<Car> GetAll()
+        public IResult Delete(Car car)
         {
-            return _carDal.GetAll();
+ 
+            _carDal.Delete(car);
+            return new SuccessResult();
         }
 
-        public List<Car> GetCarsByBrandId(int id)
+        public IDataResult<List<CarDetailDto>> GetAll()
         {
-            return _carDal.GetAll(c=>c.BrandId == id);
+            List<CarDetailDto> cars = _carDal.GetCarDetails();
+            if (cars.Count == 0)
+            {
+                return new ErrorDataResult<List<CarDetailDto>>();
+            }
+            return new SuccessDataResult<List<CarDetailDto>>(cars);
         }
 
-        public List<Car> GetCarsByColorId(int id)
+        public IDataResult<CarDetailDto> GetById(int id)
         {
-            return _carDal.GetAll(c=>c.ColorId == id);
+            CarDetailDto car = _carDal.GetCarDetailsById(id); 
+            if (car==null)
+            {
+                return new ErrorDataResult<CarDetailDto>();
+
+            }
+            car.IsAvaiable = true;
+            // TODO isAvaiable durumu check edilecek.
+            return new SuccessDataResult<CarDetailDto> (car);
+        }
+
+        public IDataResult<List<CarDetailDto>> GetCarsByBrandId(int id)
+        {
+            List<CarDetailDto> cars = _carDal.GetCarsByBrandId(id);
+            if (cars.Count == 0)
+            {
+                return new ErrorDataResult<List<CarDetailDto>>(Messages.CAR_NOT_FOUND);
+                
+            }
+    
+            return new SuccessDataResult<List<CarDetailDto>>(cars);
+        }
+
+        public IDataResult<List<CarDetailDto>> GetCarsByColorId(int id)
+        {
+            List<CarDetailDto> car = _carDal.GetCarByColorId(id);
+            if (car.Count == 0)
+            {
+                return new ErrorDataResult<List<CarDetailDto>>();
+            }
+            return new SuccessDataResult<List< CarDetailDto>>(car); 
+        }
+
+        public IResult Update(Car car)
+        {
+
+            _carDal.Update(car);
+            return new SuccessResult();
         }
     }
 }
