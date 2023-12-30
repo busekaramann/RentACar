@@ -1,4 +1,6 @@
 ﻿using Business.Abstract;
+using Business.ValidationRules.FluentValidation;
+using Core.Aspect.Autofac.Validation;
 using Core.Utilities.Results;
 using DataAccess.Abstract;
 using Entities.Concreate;
@@ -19,6 +21,8 @@ namespace Business.Concrate
         {
             _rentalDal = rentalDal;  
         }
+
+        [ValidationAspect(typeof(RentalValidator))]
         public IResult Add(Rental request)
         {
             // rental.Id kısmında arabanın Idsini vermiş oluyorum

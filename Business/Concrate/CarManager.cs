@@ -1,5 +1,8 @@
 ﻿using Business.Abstract;
 using Business.Constants;
+using Business.ValidationRules.FluentValidation;
+using Core.Aspect.Autofac.Validation;
+using Core.Utilities.Business;
 using Core.Utilities.Results;
 using DataAccess.Abstract;
 using Entities.Concreate;
@@ -21,16 +24,15 @@ namespace Business.Concrate
         {
             _carDal = carDal;
         }
-        
+
+        [ValidationAspect(typeof(CarValidator))]
         public IResult Add(Car car)
         {
-            int lenght = car.Description.Length;
-            if (lenght < 2) {
-                return new ErrorResult();
-            }
-
-            if(car.DailyPrice <= 0) {
-                return new ErrorResult();
+            IResult result = BusinessRules.Run();
+            if(result != null)
+            {
+                return result;
+            
             }
             _carDal.Add(car);
             return new SuccessResult();
@@ -38,7 +40,13 @@ namespace Business.Concrate
 
         public IResult Delete(Car car)
         {
- 
+            IResult result = BusinessRules.Run();
+            if (result != null)
+            {
+                return result;
+
+            }
+
             _carDal.Delete(car);
             return new SuccessResult();
         }
@@ -46,7 +54,12 @@ namespace Business.Concrate
         public IDataResult<List<CarDetailDto>> GetAll()
         {
             List<CarDetailDto> cars = _carDal.GetCarDetails();
-            if (cars.Count == 0)
+
+
+            IResult result = BusinessRules.Run(CheckCarCount(cars.Count));
+
+
+            if (result != null)
             {
                 return new ErrorDataResult<List<CarDetailDto>>();
             }
@@ -88,11 +101,33 @@ namespace Business.Concrate
             return new SuccessDataResult<List< CarDetailDto>>(car); 
         }
 
+        public int GetCount()
+        {
+            return _carDal.Count();
+        }
+
         public IResult Update(Car car)
         {
+            IResult result = BusinessRules.Run();
+            if (result != null)
+            {
+                return result;
+
+            }
 
             _carDal.Update(car);
             return new SuccessResult();
         }
+        private IResult CheckCarCount(int count) 
+        { 
+            if (count == 0)
+            {
+                return new ErrorResult();
+            
+            }
+            return new SuccessResult();
+        
+        }
+
     }
 }
