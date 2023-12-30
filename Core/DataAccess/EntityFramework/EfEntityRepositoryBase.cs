@@ -24,6 +24,25 @@ namespace Core.DataAccess.EntityFramework
 
             }
         }
+        public int Count(Expression<Func<TEntity, bool>> filter = null)
+        {
+            using (TContext context = new TContext())
+            {
+                return filter == null ? context.Set<TEntity>().Count()
+                    : context.Set<TEntity>().Where(filter).Count();
+
+            }
+        }
+        public bool Exists(Expression<Func<TEntity, bool>> filter = null)
+        {
+
+            using (TContext context = new TContext())
+            {
+                return filter == null ? context.Set<TEntity>().Any()
+                    : context.Set<TEntity>().Where(filter).Any();
+            }
+
+        }
 
         public void Delete(TEntity entity)
         {
