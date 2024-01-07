@@ -15,5 +15,6 @@ namespace Entities.Concreate
         public int ModelYear { get; set; }
         public double DailyPrice { get; set; }
         public string Description { get; set; }
+        
     }
 }

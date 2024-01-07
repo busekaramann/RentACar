@@ -1,14 +1,11 @@
 ﻿using Business.Abstract;
+using Business.BusinessAspects.Autofac;
+using Core.Aspect.Autofac.Transaction;
 using Core.Utilities.Helpers;
 using Core.Utilities.Results;
 using DataAccess.Abstract;
 using Entities.Concreate;
 using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Business.Concrate
 {
@@ -22,6 +19,9 @@ namespace Business.Concrate
             _fileHelper = fileHelper;
             
         }
+
+        [TransactionScopeAspect]
+        [SecuredOperation("admin")]
         public IResult Add(CarImage carImage, IFormFile formFile)
         {
             if (!CheckCarImageCount(carImage.CarId).Success)
@@ -39,6 +39,7 @@ namespace Business.Concrate
             return new SuccessResult();
         }
 
+        [SecuredOperation("admin")]
         public IResult Delete(CarImage carImage)
         {
             _carImageDal.Delete(carImage);
@@ -69,6 +70,7 @@ namespace Business.Concrate
             return new SuccessDataResult<List<CarImage>>(carImages);
         }
 
+        [SecuredOperation("admin")]
         public IResult Update(CarImage carImage)
         {
             _carImageDal.Update(carImage);

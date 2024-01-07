@@ -1,15 +1,10 @@
 ﻿using Business.Abstract;
 using Business.ValidationRules.FluentValidation;
 using Core.Aspect.Autofac.Validation;
+using Core.Entities.Concrete;
 using Core.Utilities.Results;
 using DataAccess.Abstract;
-using Entities.Concreate;
 using Entities.DTOs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Business.Concrate
 {
@@ -30,9 +25,10 @@ namespace Business.Concrate
 
         public IResult Delete(User user)
         {
-            _userDal.Add(user);
+            _userDal.Delete(user);
             return new SuccessResult();
         }
+
 
         public IDataResult<List<UserDetailDto>> GetAll()
         {
@@ -60,6 +56,14 @@ namespace Business.Concrate
         {
             _userDal.Update(user);
             return new SuccessResult();
+        }
+        public List<OperationClaim> GetClaims(User user)
+        {
+            return _userDal.GetClaims(user);
+        }
+        public User GetByMail(string email)
+        {
+            return _userDal.Get(u => u.Email == email);
         }
     }
 }
