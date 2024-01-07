@@ -1,18 +1,15 @@
 ﻿using Business.Abstract;
+using Business.BusinessAspects.Autofac;
 using Business.Constants;
 using Business.ValidationRules.FluentValidation;
+using Core.Aspect.Autofac.Caching;
+using Core.Aspect.Autofac.Transaction;
 using Core.Aspect.Autofac.Validation;
 using Core.Utilities.Business;
 using Core.Utilities.Results;
 using DataAccess.Abstract;
 using Entities.Concreate;
 using Entities.DTOs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Business.Concrate
 {
@@ -25,7 +22,10 @@ namespace Business.Concrate
             _carDal = carDal;
         }
 
+        [CacheRemoveAspect("ICarService.Get")]
+        [SecuredOperation("car.add,admin")]
         [ValidationAspect(typeof(CarValidator))]
+        [TransactionScopeAspect]
         public IResult Add(Car car)
         {
             IResult result = BusinessRules.Run();
@@ -38,6 +38,7 @@ namespace Business.Concrate
             return new SuccessResult();
         }
 
+        [CacheRemoveAspect("ICarService.Get")]
         public IResult Delete(Car car)
         {
             IResult result = BusinessRules.Run();
@@ -51,6 +52,7 @@ namespace Business.Concrate
             return new SuccessResult();
         }
 
+        [CacheAspect]
         public IDataResult<List<CarDetailDto>> GetAll()
         {
             List<CarDetailDto> cars = _carDal.GetCarDetails();
@@ -79,6 +81,8 @@ namespace Business.Concrate
             return new SuccessDataResult<CarDetailDto> (car);
         }
 
+       
+
         public IDataResult<List<CarDetailDto>> GetCarsByBrandId(int id)
         {
             List<CarDetailDto> cars = _carDal.GetCarsByBrandId(id);
@@ -106,6 +110,8 @@ namespace Business.Concrate
             return _carDal.Count();
         }
 
+        [ValidationAspect(typeof(CarValidator))]
+        [CacheRemoveAspect("ICarService.Get")]
         public IResult Update(Car car)
         {
             IResult result = BusinessRules.Run();

@@ -1,16 +1,13 @@
 ﻿using Business.Abstract;
+using Business.BusinessAspects.Autofac;
 using Business.ValidationRules.FluentValidation;
+using Core.Aspect.Autofac.Caching;
+using Core.Aspect.Autofac.Transaction;
 using Core.Aspect.Autofac.Validation;
 using Core.Utilities.Results;
 using DataAccess.Abstract;
 using Entities.Concreate;
 using Entities.DTOs;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Business.Concrate
 {
@@ -23,6 +20,9 @@ namespace Business.Concrate
         }
 
         [ValidationAspect(typeof(RentalValidator))]
+        [SecuredOperation("user,admin")]
+        [TransactionScopeAspect]
+        [CacheRemoveAspect("IRentalService.Get")]
         public IResult Add(Rental request)
         {
             // rental.Id kısmında arabanın Idsini vermiş oluyorum
@@ -43,12 +43,16 @@ namespace Business.Concrate
             return new SuccessResult();
         }
 
+        [CacheRemoveAspect("IRentalService.Get")]
+        [SecuredOperation("admin")]
         public IResult Delete(Rental rental)
         {
             _rentalDal.Delete(rental);
             return new SuccessResult();
         }
 
+        [CacheAspect]
+        [SecuredOperation("admin")]
         public IDataResult<List<RentalDetailDto>> GetAll()
         {
             List<RentalDetailDto> rentals = _rentalDal.GetRentalDetails();
@@ -59,6 +63,8 @@ namespace Business.Concrate
             return new SuccessDataResult<List<RentalDetailDto>>();
         }
 
+        [CacheAspect]
+        [SecuredOperation("admin")]
         public IDataResult<RentalDetailDto> GetById(int id)
         {
             RentalDetailDto rental = _rentalDal.GetRentalDetailsById(id);
@@ -69,6 +75,8 @@ namespace Business.Concrate
             return new SuccessDataResult<RentalDetailDto>(rental);
         }
 
+        [CacheRemoveAspect("IRentalService.Get")]
+        [SecuredOperation("admin")]
         public IResult Update(Rental rental)
         {
             _rentalDal.Update(rental);

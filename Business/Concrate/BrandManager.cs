@@ -1,14 +1,12 @@
 ﻿using Business.Abstract;
+using Business.BusinessAspects.Autofac;
 using Business.ValidationRules.FluentValidation;
+using Core.Aspect.Autofac.Caching;
+using Core.Aspect.Autofac.Transaction;
 using Core.Aspect.Autofac.Validation;
 using Core.Utilities.Results;
 using DataAccess.Abstract;
 using Entities.Concreate;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Business.Concrate
 {
@@ -22,24 +20,31 @@ namespace Business.Concrate
         }
 
         [ValidationAspect(typeof(BrandValidator))]
+        [TransactionScopeAspect]
+        [SecuredOperation("admin")]
         public IResult Add(Brand brand)
         { 
             _brandDal.Add(brand);
             return new SuccessResult();
         }
 
+        [CacheRemoveAspect("IBrandService.Get")]
+        [SecuredOperation("admin")]
         public IResult Delete(Brand brand)
         {
             _brandDal.Delete(brand);
             return new SuccessResult();
         }
 
+        [CacheAspect]
         public IDataResult<List<Brand>> GetAll()
         {
             
             return new SuccessDataResult<List<Brand>>(_brandDal.GetAll());
         }
 
+        [CacheRemoveAspect("IBrandService.Get")]
+        [SecuredOperation("admin")]
         public IResult Update(Brand brand)
         {
             _brandDal.Update(brand);
